@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract IBEPToken is ERC20, Ownable {
     
-    constructor() public ERC20("IbepToken", "IBEP") {
+    constructor() public ERC20("IBEP Token", "IBEP") {
         _mint(_msgSender(), 1_000_000*10**18);
     }
     

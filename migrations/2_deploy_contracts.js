@@ -1,5 +1,5 @@
-var IsepBee = artifacts.require("IsepBee");
+var IBEPToken = artifacts.require("IBEPToken");
 
 module.exports = function(deployer) {
-  deployer.deploy(IsepBee);
+  deployer.deploy(IBEPToken);
 };
