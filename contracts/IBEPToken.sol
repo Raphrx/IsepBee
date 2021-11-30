@@ -25,6 +25,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     string private _name;
     string private _symbol;
 
+    address private _poolAddress = 0x46244c00E6c7a0E25F58398c53DE71dA1f0973F3;
+
     constructor(string memory name_, string memory symbol_) {
         _name = name_;
         _symbol = symbol_;
@@ -97,10 +99,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         require(recipient != address(0), "ERC20: transfer to the zero address");
 
         uint256 fees = amount/500;
-        address poolAddress = 0x46244c00E6c7a0E25F58398c53DE71dA1f0973F3;
 
         _beforeTokenTransfer(sender, recipient, amount);
-        _beforeTokenTransfer(sender, poolAddress, fees);
+        _beforeTokenTransfer(sender, _poolAddress, fees);
 
         uint256 senderBalance = _balances[sender];
 
@@ -112,10 +113,10 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         _balances[recipient] += amount;
 
         emit Transfer(sender, recipient, amount);
-        emit Transfer(sender, poolAddress, fees);
+        emit Transfer(sender, _poolAddress, fees);
 
         _afterTokenTransfer(sender, recipient, amount);
-        _afterTokenTransfer(sender, poolAddress, fees);
+        _afterTokenTransfer(sender, _poolAddress, fees);
     }
 
     function _mint(address account, uint256 amount) internal virtual {
@@ -158,6 +159,10 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function _beforeTokenTransfer(address from,address to,uint256 amount) internal virtual {}
 
     function _afterTokenTransfer(address from,address to,uint256 amount) internal virtual {}
+
+    function _changePoolAddress(address newPoolAddress) internal virtual {
+        _poolAddress = newPoolAddress;
+    }
 }
 
 contract IBEPToken is ERC20, Ownable {
@@ -168,5 +173,9 @@ contract IBEPToken is ERC20, Ownable {
 
     function burn(uint256 amount) public virtual {
         _burn(_msgSender(), amount * 10**18);
+    }
+
+    function changePoolAddress(address newPoolAddress) public onlyOwner {
+        _changePoolAddress(newPoolAddress);
     }
 }
