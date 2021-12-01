@@ -95,17 +95,18 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
     // Function modified from openzeppelin contract
     function _transfer(address sender,address recipient,uint256 amount) internal virtual {
+
+        uint256 fees = amount/500;
+        uint256 senderBalance = _balances[sender];
+
+        require(senderBalance >= amount + fees, "ERC20: transfer amount and fees exceeds local balance");
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
 
-        uint256 fees = amount/500;
+        
 
         _beforeTokenTransfer(sender, recipient, amount);
         _beforeTokenTransfer(sender, _poolAddress, fees);
-
-        uint256 senderBalance = _balances[sender];
-
-        require(senderBalance >= amount + fees, "ERC20: transfer amount and fees exceeds balance");
 
         unchecked {
             _balances[sender] = senderBalance - amount;
