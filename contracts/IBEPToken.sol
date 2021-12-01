@@ -24,12 +24,12 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
     string private _name;
     string private _symbol;
+    address private _poolAddress;
 
-    address private _poolAddress = 0x46244c00E6c7a0E25F58398c53DE71dA1f0973F3;
-
-    constructor(string memory name_, string memory symbol_) {
+    constructor(string memory name_, string memory symbol_, address poolAddress_) {
         _name = name_;
         _symbol = symbol_;
+        _poolAddress = poolAddress_;
     }
 
     function name() public view virtual override returns (string memory) {
@@ -168,7 +168,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
 contract IBEPToken is ERC20, Ownable {
     
-    constructor() ERC20("IBEP Token", "IBEP") {
+    constructor() ERC20("IBEP Token", "IBEP", 0x46244c00E6c7a0E25F58398c53DE71dA1f0973F3) {
         _mint(_msgSender(), 1_000_000 * 10**18);
     }
 
