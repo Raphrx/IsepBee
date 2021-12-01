@@ -168,7 +168,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
 contract IBEPToken is ERC20, Ownable {
     
-    constructor() public ERC20("IBEP Token", "IBEP") {
+    constructor() ERC20("IBEP Token", "IBEP") {
         _mint(_msgSender(), 1_000_000 * 10**18);
     }
 
