@@ -24,9 +24,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     string private _name;
     string private _symbol;
     address private _poolAddress;
-    ufixed256x8 _fees;
+    uint256 _fees;
 
-    constructor(string memory name_, string memory symbol_, address poolAddress_, ufixed256x8 fees_) {
+    constructor(string memory name_, string memory symbol_, address poolAddress_, uint256 fees_) {
         _name = name_;
         _symbol = symbol_;
         _poolAddress = poolAddress_;
@@ -37,7 +37,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         return _name;
     }
 
-    function fees() public view virtual returns (ufixed256x8) {
+    function fees() public view virtual returns (uint256) {
         return _fees;
     }
 
@@ -105,7 +105,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     // Function modified from openzeppelin contract
     function _transfer(address sender,address recipient,uint256 amount) internal virtual {
 
-        uint256 feesAmount = amount * uint256(_fees);
+        uint256 feesAmount = amount/_fees;
         uint256 senderBalance = _balances[sender];
 
         require(senderBalance >= amount + feesAmount, "ERC20: transfer amount and fees exceeds local balance");
@@ -174,7 +174,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         _poolAddress = newPoolAddress;
     }
 
-    function _changeFeeRate(ufixed256x8 newRate) internal virtual {
+    function _changeFeeRate(uint256 newRate) internal virtual {
         _fees = newRate;
     }
 }
@@ -193,7 +193,7 @@ contract IBEPToken is ERC20, Ownable {
         _changePoolAddress(newPoolAddress);
     }
 
-    function changeFeeRate(ufixed256x8 newRate) public onlyOwner {
+    function changeFeeRate(uint256 newRate) public onlyOwner {
         _changeFeeRate(newRate);
     }
 }
