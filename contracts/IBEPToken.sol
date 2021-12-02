@@ -21,19 +21,28 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     mapping(address => mapping(address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
-
     string private _name;
     string private _symbol;
     address private _poolAddress;
+    ufixed256x8 _fees;
 
-    constructor(string memory name_, string memory symbol_, address poolAddress_) {
+    constructor(string memory name_, string memory symbol_, address poolAddress_, ufixed256x8 fees_) {
         _name = name_;
         _symbol = symbol_;
         _poolAddress = poolAddress_;
+        _fees = fees_;
     }
 
     function name() public view virtual override returns (string memory) {
         return _name;
+    }
+
+    function fees() public view virtual returns (ufixed256x8) {
+        return _fees;
+    }
+
+    function poolAddress() public view virtual returns (address){
+        return _poolAddress;
     }
 
     function symbol() public view virtual override returns (string memory) {
@@ -96,17 +105,17 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     // Function modified from openzeppelin contract
     function _transfer(address sender,address recipient,uint256 amount) internal virtual {
 
-        uint256 fees = amount/500;
+        uint256 feesAmount = amount * uint256(_fees);
         uint256 senderBalance = _balances[sender];
 
-        require(senderBalance >= amount + fees, "ERC20: transfer amount and fees exceeds local balance");
+        require(senderBalance >= amount + feesAmount, "ERC20: transfer amount and fees exceeds local balance");
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
 
         
 
         _beforeTokenTransfer(sender, recipient, amount);
-        _beforeTokenTransfer(sender, _poolAddress, fees);
+        _beforeTokenTransfer(sender, _poolAddress, feesAmount);
 
         unchecked {
             _balances[sender] = senderBalance - amount;
@@ -114,10 +123,10 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         _balances[recipient] += amount;
 
         emit Transfer(sender, recipient, amount);
-        emit Transfer(sender, _poolAddress, fees);
+        emit Transfer(sender, _poolAddress, feesAmount);
 
         _afterTokenTransfer(sender, recipient, amount);
-        _afterTokenTransfer(sender, _poolAddress, fees);
+        _afterTokenTransfer(sender, _poolAddress, feesAmount);
     }
 
     function _mint(address account, uint256 amount) internal virtual {
@@ -164,11 +173,15 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function _changePoolAddress(address newPoolAddress) internal virtual {
         _poolAddress = newPoolAddress;
     }
+
+    function _changeFeeRate(ufixed256x8 newRate) internal virtual {
+        _fees = newRate;
+    }
 }
 
 contract IBEPToken is ERC20, Ownable {
     
-    constructor() ERC20("IBEP Token", "IBEP", 0x46244c00E6c7a0E25F58398c53DE71dA1f0973F3) {
+    constructor() ERC20("IBEP Token", "IBEP", 0x46244c00E6c7a0E25F58398c53DE71dA1f0973F3, 0) {
         _mint(_msgSender(), 1_000_000 * 10**18);
     }
 
@@ -178,5 +191,9 @@ contract IBEPToken is ERC20, Ownable {
 
     function changePoolAddress(address newPoolAddress) public onlyOwner {
         _changePoolAddress(newPoolAddress);
+    }
+
+    function changeFeeRate(ufixed256x8 newRate) public onlyOwner {
+        _changeFeeRate(newRate);
     }
 }
